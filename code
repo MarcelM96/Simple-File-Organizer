@@ -1,0 +1,58 @@
+import os
+import shutil
+
+def list_directories(base_directory):
+    """Lists all directories in the given base directory."""
+    directories = [
+        os.path.join(base_directory, d) for d in os.listdir(base_directory)
+        if os.path.isdir(os.path.join(base_directory, d))
+    ]
+    return directories
+
+def organize_files(directory):
+    if not os.path.exists(directory):
+        print(f"The specified directory does not exist: {directory}")
+        return
+
+    for filename in os.listdir(directory):
+        file_path = os.path.join(directory, filename)
+
+        # Skip if it's not a file
+        if not os.path.isfile(file_path):
+            continue
+
+        # Get the file extension
+        file_extension = filename.split('.')[-1]
+
+        # Create a folder for the file type
+        folder_name = os.path.join(directory, file_extension)
+        if not os.path.exists(folder_name):
+            os.makedirs(folder_name)
+
+        # Move the file into the folder
+        shutil.move(file_path, os.path.join(folder_name, filename))
+        print(f"Moved {filename} to {folder_name}")
+
+if __name__ == "__main__":
+    base_directory = input("Enter the base directory to look for folders (e.g., your Desktop): ").strip()
+
+    # Validate the base directory
+    if not os.path.exists(base_directory):
+        print(f"The base directory does not exist: {base_directory}")
+    else:
+        print("\nAvailable directories:")
+        directories = list_directories(base_directory)
+        if not directories:
+            print("No subdirectories found in the base directory.")
+        else:
+            for i, dir_path in enumerate(directories, start=1):
+                print(f"{i}. {dir_path}")
+
+            # Ask the user to select a directory
+            choice = input("\nEnter the number of the directory you want to organize: ").strip()
+            if not choice.isdigit() or int(choice) < 1 or int(choice) > len(directories):
+                print("Invalid choice. Exiting.")
+            else:
+                selected_directory = directories[int(choice) - 1]
+                print(f"\nOrganizing files in: {selected_directory}")
+                organize_files(selected_directory)
